@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Ôn Tập Toán – Lớp 1</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;700;800&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --sky: #29B6F6;
+    --sun: #FFD54F;
+    --grass: #66BB6A;
+    --coral: #FF7043;
+    --bg: #FFF8F0;
+    --card: #FFFFFF;
+    --text: #1A237E;
+    --muted: #78909C;
+    --radius: 20px;
+    --correct: #43A047;
+    --wrong: #E53935;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: var(--bg);
+    min-height: 100vh;
+    color: var(--text);
+    overflow-x: hidden;
+  }
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background:
+      radial-gradient(circle at 15% 15%, #FFF3E055 0%, transparent 50%),
+      radial-gradient(circle at 85% 85%, #E3F2FD55 0%, transparent 50%);
+    pointer-events: none; z-index: 0;
+  }
+
+  .shapes { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+  .shape {
+    position: absolute; border-radius: 50%; opacity: 0.07;
+    animation: drift ease-in-out infinite;
+  }
+  @keyframes drift {
+    0%,100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-28px) rotate(18deg); }
+  }
+
+  header {
+    position: relative; z-index: 10;
+    text-align: center; padding: 44px 20px 16px;
+  }
+  .school-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: white; border: 2px solid #FFE0B2;
+    color: var(--coral);
+    font-family: 'Baloo 2', cursive;
+    font-size: 0.8rem; font-weight: 700;
+    padding: 6px 16px; border-radius: 50px;
+    margin-bottom: 16px;
+    box-shadow: 0 3px 12px #FF704318;
+  }
+  h1 {
+    font-family: 'Baloo 2', cursive;
+    font-size: clamp(1.9rem, 5vw, 3.2rem);
+    font-weight: 800; color: var(--text); line-height: 1.1;
+  }
+  h1 em { color: var(--coral); font-style: normal; }
+  .subtitle { margin-top: 8px; color: var(--muted); font-size: 0.95rem; }
+  .deco {
+    font-size: 2rem; margin-top: 10px; display: block;
+    animation: bounce 2.5s ease-in-out infinite;
+  }
+  @keyframes bounce {
+    0%,100% { transform: translateY(0); } 50% { transform: translateY(-10px); }
+  }
+
+  /* EXAM SELECTOR */
+  .exam-section {
+    position: relative; z-index: 10;
+    max-width: 760px; margin: 0 auto;
+    padding: 0 20px 10px;
+  }
+  .exam-label {
+    font-family: 'Baloo 2', cursive;
+    font-size: 1rem; font-weight: 700;
+    color: var(--muted); text-align: center; margin-bottom: 14px;
+  }
+  .exam-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 10px; margin-bottom: 28px;
+  }
+  .exam-btn {
+    font-family: 'Baloo 2', cursive;
+    font-size: 0.95rem; font-weight: 800;
+    padding: 12px 6px;
+    border: 2.5px solid #E0E0E0; border-radius: 14px;
+    background: white; color: var(--muted);
+    cursor: pointer; transition: all 0.2s; text-align: center;
+  }
+  .exam-btn:hover { border-color: var(--coral); color: var(--coral); transform: translateY(-2px); }
+  .exam-btn.active {
+    background: var(--coral); color: white;
+    border-color: #E64A19;
+    box-shadow: 0 4px 14px #FF704340;
+    transform: translateY(-2px);
+  }
+
+  /* QUIZ WRAP */
+  .quiz-wrap {
+    position: relative; z-index: 10;
+    max-width: 720px; margin: 0 auto;
+    padding: 0 20px 70px;
+  }
+
+  /* progress */
+  .progress-row { display: flex; align-items: center; gap: 12px; margin-bottom: 22px; }
+  .progress-bar-bg { flex: 1; height: 10px; background: #ECEFF1; border-radius: 50px; overflow: hidden; }
+  .progress-bar-fill {
+    height: 100%; border-radius: 50px;
+    background: linear-gradient(90deg, var(--coral), var(--sun));
+    transition: width 0.5s ease;
+  }
+  .progress-label {
+    font-family: 'Baloo 2', cursive;
+    font-weight: 700; font-size: 0.9rem; color: var(--muted); white-space: nowrap;
+  }
+
+  /* question card */
+  .question-card {
+    background: white; border-radius: var(--radius);
+    padding: 32px 28px 24px;
+    box-shadow: 0 6px 28px #1A237E10;
+    animation: slideUp 0.35s ease;
+    border-left: 6px solid var(--coral);
+  }
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(18px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .q-meta { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+  .q-tag {
+    font-family: 'Baloo 2', cursive;
+    font-size: 0.75rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 1px;
+    color: white; background: var(--coral);
+    padding: 3px 12px; border-radius: 50px;
+  }
+  .q-counter { font-family: 'Baloo 2', cursive; font-size: 0.85rem; font-weight: 700; color: var(--muted); }
+
+  .q-text { font-size: 1.15rem; font-weight: 700; line-height: 1.65; color: var(--text); margin-bottom: 22px; }
+
+  .options { display: grid; gap: 11px; }
+  .option-btn {
+    display: flex; align-items: center; gap: 14px;
+    padding: 13px 18px;
+    border: 2.5px solid #ECEFF1; border-radius: 13px;
+    background: #FAFAFA; cursor: pointer;
+    font-family: 'Nunito', sans-serif;
+    font-size: 1rem; font-weight: 600; color: var(--text);
+    transition: all 0.18s; text-align: left;
+  }
+  .option-btn:hover:not(:disabled) {
+    border-color: var(--coral); background: #FFF3E0; transform: translateX(5px);
+  }
+  .option-letter {
+    min-width: 34px; height: 34px; border-radius: 50%;
+    background: #ECEFF1; display: flex; align-items: center; justify-content: center;
+    font-family: 'Baloo 2', cursive; font-weight: 800; font-size: 0.9rem;
+    transition: all 0.18s; flex-shrink: 0;
+  }
+  .option-btn.correct { border-color: var(--correct); background: #E8F5E9; color: #1B5E20; }
+  .option-btn.correct .option-letter { background: var(--correct); color: white; }
+  .option-btn.wrong { border-color: var(--wrong); background: #FFEBEE; color: #B71C1C; }
+  .option-btn.wrong .option-letter { background: var(--wrong); color: white; }
+
+  .feedback {
+    margin-top: 18px; padding: 13px 18px; border-radius: 12px;
+    font-weight: 700; font-size: 0.97rem;
+    display: none; align-items: center; gap: 10px;
+    animation: popIn 0.25s ease;
+  }
+  @keyframes popIn { from { transform: scale(0.92); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+  .feedback.show { display: flex; }
+  .feedback.correct-fb { background: #E8F5E9; color: #2E7D32; border: 2px solid #C8E6C9; }
+  .feedback.wrong-fb { background: #FFEBEE; color: #C62828; border: 2px solid #FFCDD2; }
+  .fb-icon { font-size: 1.4rem; }
+
+  .nav-row { display: flex; gap: 12px; margin-top: 22px; }
+  .nav-btn {
+    font-family: 'Baloo 2', cursive;
+    font-size: 1rem; font-weight: 700;
+    padding: 13px 28px; border: none; border-radius: 13px;
+    cursor: pointer; transition: all 0.18s; flex: 1;
+  }
+  .nav-btn:hover:not(:disabled) { transform: translateY(-2px); }
+  .nav-btn.prev { background: #ECEFF1; color: var(--muted); }
+  .nav-btn.next { background: var(--coral); color: white; box-shadow: 0 4px 14px #FF704338; }
+  .nav-btn:disabled { opacity: 0.38; cursor: default; transform: none !important; }
+
+  /* SCORE SCREEN */
+  .score-screen { display: none; animation: slideUp 0.4s ease; }
+  .score-screen.show { display: block; }
+  .score-card {
+    background: white; border-radius: var(--radius);
+    padding: 50px 32px 40px; text-align: center;
+    box-shadow: 0 8px 40px #1A237E12;
+  }
+  .score-emoji { font-size: 5rem; margin-bottom: 14px; }
+  .score-title { font-family: 'Baloo 2', cursive; font-size: 1.5rem; font-weight: 800; color: var(--muted); margin-bottom: 6px; }
+  .score-number { font-family: 'Baloo 2', cursive; font-size: 4.5rem; font-weight: 800; color: var(--coral); line-height: 1; }
+  .score-desc { margin-top: 14px; color: var(--muted); font-size: 1.05rem; line-height: 1.6; }
+  .score-actions { display: flex; gap: 12px; margin-top: 28px; flex-wrap: wrap; justify-content: center; }
+  .action-btn {
+    font-family: 'Baloo 2', cursive;
+    font-size: 1rem; font-weight: 700;
+    padding: 14px 32px; border: none; border-radius: 13px;
+    cursor: pointer; transition: all 0.2s;
+  }
+  .action-btn:hover { transform: translateY(-3px); }
+  .btn-retry { background: var(--grass); color: white; box-shadow: 0 4px 14px #66BB6A38; }
+  .btn-change { background: #ECEFF1; color: var(--text); }
+
+  .review-section { margin-top: 24px; }
+  .review-title {
+    font-family: 'Baloo 2', cursive;
+    font-size: 1.1rem; font-weight: 800; color: var(--text);
+    margin-bottom: 14px; display: flex; align-items: center; gap: 8px;
+  }
+  .review-item {
+    background: white; border-radius: 13px;
+    padding: 14px 18px; margin-bottom: 10px;
+    box-shadow: 0 2px 8px #0001; border-left: 4px solid #ECEFF1;
+  }
+  .review-item.ok { border-left-color: var(--correct); }
+  .review-item.fail { border-left-color: var(--wrong); }
+  .review-q { font-weight: 700; font-size: 0.95rem; margin-bottom: 6px; }
+  .review-ans { font-size: 0.88rem; color: var(--muted); }
+  .review-ans strong { color: var(--correct); }
+  .user-wrong { color: var(--wrong); }
+
+  .confetti-piece {
+    position: fixed; top: -20px; border-radius: 3px;
+    animation: fall linear forwards; pointer-events: none; z-index: 999;
+  }
+  @keyframes fall { to { top: 110vh; transform: rotate(720deg) translateX(50px); opacity: 0; } }
+
+  @media (max-width: 520px) {
+    .exam-grid { gap: 7px; }
+    .exam-btn { font-size: 0.82rem; padding: 10px 2px; }
+    .question-card { padding: 22px 16px 18px; }
+    h1 { font-size: 1.7rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="shapes" id="shapes"></div>
+
+<header>
+  <div class="school-badge">🏫 Trường TH Nguyễn Quý Đức · Nam Từ Liêm</div>
+  <h1>Ôn Tập <em>Môn Toán</em></h1>
+  <p class="subtitle">Cuối Học Kì II · Lớp 1 · Năm học 2024 – 2025</p>
+  <span class="deco">🔢 ✏️ ⭐ 📐</span>
+</header>
+
+<div class="exam-section">
+  <div class="exam-label">📋 Chọn đề ôn tập:</div>
+  <div class="exam-grid" id="examGrid"></div>
+</div>
+
+<div class="quiz-wrap">
+  <div class="progress-row">
+    <div class="progress-bar-bg">
+      <div class="progress-bar-fill" id="progressFill" style="width:0%"></div>
+    </div>
+    <div class="progress-label" id="progressLabel">0 / 0</div>
+  </div>
+
+  <div id="quizArea"></div>
+
+  <div class="score-screen" id="scoreScreen">
+    <div class="score-card">
+      <div class="score-emoji" id="scoreEmoji">🎉</div>
+      <div class="score-title" id="scoreExamLabel"></div>
+      <div class="score-number" id="scoreNum">0/0</div>
+      <div class="score-desc" id="scoreDesc"></div>
+      <div class="score-actions">
+        <button class="action-btn btn-retry" onclick="retryExam()">🔄 Làm lại đề này</button>
+        <button class="action-btn btn-change" onclick="scrollToExams()">📋 Chọn đề khác</button>
+      </div>
+    </div>
+    <div class="review-section" id="reviewSection"></div>
+  </div>
+</div>
+
+<script>
+const EXAMS = [
+  {
+    title: "Đề 1",
+    questions: [
+      { q: "Trong các số 55, 78, 37, 98 – số nào lớn nhất?", opts: ["78","55","37","98"], ans: 3 },
+      { q: "Số \"51\" đọc là:", opts: ["Năm mốt","Năm mươi mốt","Năm một","Năm mươi lăm"], ans: 1 },
+      { q: "Số 56 gồm:", opts: ["5 và 6","5 chục và 6 đơn vị","6 chục và 5 đơn vị"], ans: 1 },
+      { q: "Tính: 84 + 3 – 7 = ?", opts: ["80","85","83","84"], ans: 0 },
+      { q: "25 + __ < 86. Số cần điền là:", opts: ["60","61","62","63"], ans: 0 },
+      { q: "15 + 42 __ 96 – 35. Dấu cần điền là:", opts: ["<",">","="], ans: 0 },
+      { q: "Nếu hôm nay là thứ Ba ngày 10 tháng 5, thì thứ Ba tuần sau là ngày mấy tháng 5?", opts: ["ngày 3 tháng 5","ngày 17 tháng 5","ngày 11 tháng 5","ngày 9 tháng 5"], ans: 1 },
+      { q: "56 – 43 = ?", opts: ["13","23","99","12"], ans: 0 },
+      { q: "25 + 14 = ?", opts: ["39","29","11","41"], ans: 0 },
+      { q: "98 – 5 = ?", opts: ["93","83","103","89"], ans: 0 },
+      { q: "6 + 83 = ?", opts: ["89","77","98","76"], ans: 0 },
+      { q: "Lớp 1C có 53 bạn (nam và nữ), trong đó có 32 bạn nữ. Hỏi lớp 1C có bao nhiêu bạn nam?", opts: ["21 bạn","85 bạn","32 bạn","22 bạn"], ans: 0 },
+      { q: "Sắp xếp 26, 7, 84, 78, 92 từ lớn đến bé:", opts: ["92, 84, 78, 26, 7","7, 26, 78, 84, 92","84, 92, 78, 26, 7","92, 84, 26, 78, 7"], ans: 0 },
+      { q: "Sắp xếp 26, 7, 84, 78, 92 từ bé đến lớn:", opts: ["92, 84, 78, 26, 7","7, 26, 78, 84, 92","7, 26, 84, 78, 92","26, 7, 78, 84, 92"], ans: 1 },
+    ]
+  },
+  {
+    title: "Đề 2",
+    questions: [
+      { q: "Trong các số 69, 78, 96, 47 – số nào lớn nhất?", opts: ["69","78","96","47"], ans: 2 },
+      { q: "Số gồm 3 chục và 6 đơn vị là:", opts: ["30","36","306","63"], ans: 1 },
+      { q: "Mẹ đi công tác 1 tuần và 3 ngày. Hỏi mẹ đi công tác bao nhiêu ngày?", opts: ["7 ngày","13 ngày","10 ngày","31 ngày"], ans: 2 },
+      { q: "24 + 14 > 38 + 0. Đúng hay sai?", opts: ["Đúng","Sai"], ans: 1 },
+      { q: "98 – 64 = 34. Đúng hay sai?", opts: ["Đúng","Sai"], ans: 0 },
+      { q: "23 cm + 60 cm = ?", opts: ["83 cm","37 cm","163 cm","80 cm"], ans: 0 },
+      { q: "89 – 46 + 5 = ?", opts: ["48","38","58","130"], ans: 0 },
+      { q: "Cho các số 95, 21, 87, 61. Sắp xếp từ lớn đến bé:", opts: ["95, 87, 61, 21","95, 21, 87, 61","21, 61, 87, 95","87, 95, 61, 21"], ans: 0 },
+      { q: "5 + 40 = ?", opts: ["45","35","540","15"], ans: 0 },
+      { q: "97 – 43 = ?", opts: ["54","140","64","44"], ans: 0 },
+      { q: "89 – 2 = ?", opts: ["87","91","892","79"], ans: 0 },
+      { q: "53 + 24 = ?", opts: ["77","29","5324","67"], ans: 0 },
+      { q: "__ + 34 = 78. Số cần điền là:", opts: ["44","34","112","48"], ans: 0 },
+      { q: "46 – __ = 21. Số cần điền là:", opts: ["25","67","15","35"], ans: 0 },
+      { q: "Tùng trồng được 36 cây. Toàn trồng được 3 chục cây. Hỏi cả hai bạn trồng được bao nhiêu cây?", opts: ["66 cây","6 cây","96 cây","56 cây"], ans: 0 },
+    ]
+  },
+  {
+    title: "Đề 3",
+    questions: [
+      { q: "Số nào bé nhất trong các số 45, 67, 12, 9?", opts: ["67","45","9","12"], ans: 2 },
+      { q: "Số liền sau số lớn nhất có hai chữ số là:", opts: ["97","98","99","100"], ans: 3 },
+      { q: "12 cm + 2 cm = 14 cm. Đúng hay sai?", opts: ["Đúng","Sai"], ans: 0 },
+      { q: "42 cm – 2 cm = 40 cm. Đúng hay sai?", opts: ["Đúng","Sai"], ans: 0 },
+      { q: "Nghỉ hè, Lan về quê 1 tuần 1 ngày. Vậy Lan về quê mấy ngày?", opts: ["6 ngày","7 ngày","8 ngày","9 ngày"], ans: 2 },
+      { q: "Nga có 22 cái bút, Lan có 1 chục cái bút. Hỏi cả hai bạn có bao nhiêu cái bút?", opts: ["23","33","32","11"], ans: 2 },
+      { q: "17 + 2 = ?", opts: ["19","15","72","9"], ans: 0 },
+      { q: "55 + 10 = ?", opts: ["65","45","155","60"], ans: 0 },
+      { q: "89 – 23 = ?", opts: ["66","112","76","56"], ans: 0 },
+      { q: "33 + __ = 56. Số cần điền là:", opts: ["23","89","33","13"], ans: 0 },
+      { q: "54 – __ = 10. Số cần điền là:", opts: ["44","64","54","34"], ans: 0 },
+      { q: "Hà có 25 que tính, Lan có 3 chục que tính. Hỏi cả hai bạn có tất cả bao nhiêu que tính?", opts: ["55 que tính","5 que tính","85 que tính","45 que tính"], ans: 0 },
+    ]
+  },
+  {
+    title: "Đề 4",
+    questions: [
+      { q: "43 đọc là:", opts: ["Bốn ba","Bốn mươi ba","Bốn mươi bốn","Bốn mươi"], ans: 1 },
+      { q: "35 đọc là:", opts: ["Ba lăm","Ba mươi lăm","Ba mươi năm","Ba năm"], ans: 1 },
+      { q: "Năm mươi tư viết là:", opts: ["45","54","504","405"], ans: 1 },
+      { q: "Bảy mươi mốt viết là:", opts: ["17","107","70","71"], ans: 3 },
+      { q: "21 cm + 5 cm = 26 cm. Đúng hay sai?", opts: ["Đúng","Sai"], ans: 0 },
+      { q: "28 cm – 13 cm = 15 cm. Đúng hay sai?", opts: ["Đúng","Sai"], ans: 0 },
+      { q: "Mẹ đi công tác 1 tuần và 3 ngày. Vậy mẹ đi công tác mấy ngày?", opts: ["6 ngày","7 ngày","9 ngày","10 ngày"], ans: 3 },
+      { q: "Sợi dây vải dài 60 cm, chị cắt lấy một đoạn 20 cm. Hỏi đoạn dây còn lại dài bao nhiêu cm?", opts: ["23 cm","40 cm","30 cm","80 cm"], ans: 1 },
+      { q: "5 + 23 = ?", opts: ["28","18","52","27"], ans: 0 },
+      { q: "40 + 29 = ?", opts: ["69","11","409","70"], ans: 0 },
+      { q: "78 – 3 = ?", opts: ["75","81","73","785"], ans: 0 },
+      { q: "89 – 49 = ?", opts: ["40","138","50","39"], ans: 0 },
+      { q: "33 + 12 __ 45 – 15. Dấu cần điền là:", opts: ["<",">","="], ans: 1 },
+      { q: "Nhà An có 12 con gà và 3 chục con vịt. Hỏi nhà An có tất cả bao nhiêu con gà và vịt?", opts: ["42 con","15 con","32 con","52 con"], ans: 0 },
+    ]
+  },
+  {
+    title: "Đề 5",
+    questions: [
+      { q: "Số có 2 chữ số giống nhau lớn nhất là:", opts: ["78","88","90","99"], ans: 3 },
+      { q: "Phép tính nào có kết quả lớn hơn 55?", opts: ["97 – 65","12 + 33","50 + 10","77 – 33"], ans: 3 },
+      { q: "Kết quả của phép tính 67 – 12 là:", opts: ["55","45","79","65"], ans: 0 },
+      { q: "23 + 32 __ 67. Dấu cần điền là:", opts: [">","<","="], ans: 1 },
+      { q: "Điền tiếp vào dãy số: 48, 49, __, 51, __", opts: ["47, 56","40, 53","50, 52","52, 50"], ans: 2 },
+      { q: "14 + 54 = ?", opts: ["68","60","40","78"], ans: 0 },
+      { q: "17 + 21 = ?", opts: ["38","36","42","28"], ans: 0 },
+      { q: "98 – 45 = ?", opts: ["53","143","63","43"], ans: 0 },
+      { q: "45 – 23 = ?", opts: ["22","68","32","12"], ans: 0 },
+      { q: "26 + 31 __ 16 + 41. Dấu cần điền là:", opts: ["<",">","="], ans: 2 },
+      { q: "49 – 6 __ 28. Dấu cần điền là:", opts: ["<",">","="], ans: 1 },
+      { q: "35 + 22 __ 76 – 61. Dấu cần điền là:", opts: ["<",">","="], ans: 1 },
+      { q: "Bác Lan nuôi được 4 chục con vịt và ngan, trong đó có 20 con vịt. Hỏi bác Lan nuôi bao nhiêu con ngan?", opts: ["20 con","60 con","40 con","10 con"], ans: 0 },
+    ]
+  },
+  {
+    title: "Đề 6",
+    questions: [
+      { q: "Số 85 được đọc là:", opts: ["Tám lăm","Tám mươi năm","Tám mươi lăm"], ans: 2 },
+      { q: "Số liền sau 89 là:", opts: ["80","90","88"], ans: 1 },
+      { q: "Một tuần lễ có bao nhiêu ngày?", opts: ["5","8","7"], ans: 2 },
+      { q: "Các số 14, 65, 48, 41 viết theo thứ tự từ lớn đến bé là:", opts: ["14, 65, 48, 41","14, 41, 48, 65","65, 48, 14, 41","65, 48, 41, 14"], ans: 3 },
+      { q: "Nhà Lan có 43 con gà, trong đó có 13 con gà trống. Hỏi nhà Lan có bao nhiêu con gà mái?", opts: ["56 con","30 con","46 con"], ans: 1 },
+      { q: "Số liền sau số bé nhất có 2 chữ số là:", opts: ["10","11","9"], ans: 1 },
+      { q: "12 – 2 = ?", opts: ["10","14","22","9"], ans: 0 },
+      { q: "54 + 3 = ?", opts: ["57","51","543","47"], ans: 0 },
+      { q: "65 + 20 = ?", opts: ["85","45","6520","70"], ans: 0 },
+      { q: "87 – 12 = ?", opts: ["75","99","62","85"], ans: 0 },
+      { q: "89 – 7 = ?", opts: ["82","96","89","79"], ans: 0 },
+      { q: "56 – 46 + 2 = ?", opts: ["12","108","2","22"], ans: 0 },
+      { q: "Nam có 65 viên bi, Nam cho em 1 chục viên bi. Hỏi Nam còn lại bao nhiêu viên bi?", opts: ["55 viên","75 viên","65 viên","45 viên"], ans: 0 },
+      { q: "Trong các số 76, 43, 56, 34 – số nào bé hơn 50?", opts: ["76 và 56","43 và 34","56 và 43","34 và 76"], ans: 1 },
+    ]
+  },
+  {
+    title: "Đề 7",
+    questions: [
+      { q: "Phép tính nào có kết quả bằng 90?", opts: ["50 – 40","40 + 30","90 – 10","50 + 40"], ans: 3 },
+      { q: "Số gồm 6 đơn vị và 3 chục được viết là:", opts: ["306","36","603","63"], ans: 1 },
+      { q: "Số 35 gồm mấy chục và mấy đơn vị?", opts: ["3 chục và 5 đơn vị","5 và 3","5 chục và 3 đơn vị","3 và 5"], ans: 0 },
+      { q: "12 cm + 3 cm = ?", opts: ["15","51 cm","42 cm","15 cm"], ans: 3 },
+      { q: "Tuấn có 5 viên bi, Bình có 3 viên bi. Hai bạn có mấy viên bi?", opts: ["2 viên","5 viên","3 viên","8 viên"], ans: 3 },
+      { q: "Số liền trước của số lớn nhất có 2 chữ số là:", opts: ["99","100","98","10"], ans: 2 },
+      { q: "8 + 10 = ?", opts: ["18","2","810","80"], ans: 0 },
+      { q: "96 – 5 = ?", opts: ["91","101","90","86"], ans: 0 },
+      { q: "37 + 11 = ?", opts: ["48","26","3711","46"], ans: 0 },
+      { q: "90 – 40 = ?", opts: ["50","130","9040","40"], ans: 0 },
+      { q: "24 + 35 = ?", opts: ["59","11","69","49"], ans: 0 },
+      { q: "49 – 13 = ?", opts: ["36","62","26","46"], ans: 0 },
+      { q: "56 __ 65. Dấu cần điền là:", opts: ["<",">","="], ans: 0 },
+      { q: "34 cm + 12 cm __ 46 cm. Dấu cần điền là:", opts: ["<",">","="], ans: 2 },
+      { q: "Nhà Nam có 24 quả trứng gà. Nam mang biếu bà 1 chục quả. Hỏi nhà Nam còn lại bao nhiêu quả trứng?", opts: ["14 quả","34 quả","24 quả","4 quả"], ans: 0 },
+    ]
+  },
+  {
+    title: "Đề 8",
+    questions: [
+      { q: "Dãy số nào được xếp theo thứ tự từ lớn đến bé?", opts: ["97, 79, 52, 15","79, 97, 52, 15","97, 52, 79, 15","15, 52, 79, 97"], ans: 0 },
+      { q: "Số gồm 6 chục và 7 đơn vị được viết là:", opts: ["607","67","706","76"], ans: 1 },
+      { q: "Số 75 đọc là:", opts: ["Bảy mươi lăm","Bảy mươi năm","Bẩy mươi lăm","Bảy lăm"], ans: 0 },
+      { q: "84 + 4 – 8 = ?", opts: ["80","88","72","76"], ans: 0 },
+      { q: "Bố đi công tác 10 ngày. Bố ở đó đã được 1 tuần. Hỏi mấy ngày nữa bố về?", opts: ["7 ngày","17 ngày","2 ngày","3 ngày"], ans: 3 },
+      { q: "47 + 20 = ?", opts: ["67","27","4720","57"], ans: 0 },
+      { q: "97 – 56 = ?", opts: ["41","153","51","31"], ans: 0 },
+      { q: "90 – 80 = ?", opts: ["10","170","9080","20"], ans: 0 },
+      { q: "55 + 4 = ?", opts: ["59","51","554","49"], ans: 0 },
+      { q: "37 + 12 – 6 = ?", opts: ["43","55","49","23"], ans: 0 },
+      { q: "80 cm – 70 cm + 9 cm = ?", opts: ["19 cm","9 cm","159 cm","1 cm"], ans: 0 },
+      { q: "15 + 64 __ 97. Dấu cần điền là:", opts: ["<",">","="], ans: 1 },
+      { q: "Ô tô thứ nhất chở 45 hành khách. Ô tô thứ hai chở 42 hành khách. Cả hai ô tô chở được bao nhiêu hành khách?", opts: ["87 hành khách","3 hành khách","97 hành khách","77 hành khách"], ans: 0 },
+    ]
+  },
+  {
+    title: "Đề 9",
+    questions: [
+      { q: "Số 25 được đọc là:", opts: ["Hai lăm","Hai mươi năm","Hai mươi lăm","Hai năm"], ans: 2 },
+      { q: "Số gồm 2 đơn vị và 8 chục được viết là:", opts: ["208","28","802","82"], ans: 3 },
+      { q: "Phép tính nào có kết quả lớn hơn 55?", opts: ["97 – 65","12 + 33","50 + 10","77 – 33"], ans: 3 },
+      { q: "Các số 14, 65, 48, 41 viết theo thứ tự từ bé đến lớn là:", opts: ["14, 65, 48, 41","14, 41, 48, 65","65, 48, 14, 41","65, 48, 41, 14"], ans: 1 },
+      { q: "Trên cây bưởi có 53 quả. Gió làm rụng mất 2 chục quả. Hỏi trên cây còn lại mấy quả?", opts: ["33 quả","51 quả","55 quả","73 quả"], ans: 0 },
+      { q: "Số lớn nhất có hai chữ số khác nhau là:", opts: ["99","100","98","10"], ans: 2 },
+      { q: "13 + 23 = ?", opts: ["36","10","1323","40"], ans: 0 },
+      { q: "30 + 10 = ?", opts: ["40","20","3010","50"], ans: 0 },
+      { q: "67 – 4 = ?", opts: ["63","71","674","57"], ans: 0 },
+      { q: "59 – 16 = ?", opts: ["43","75","5916","39"], ans: 0 },
+      { q: "__ – 43 = 43. Số cần điền là:", opts: ["86","0","43","100"], ans: 0 },
+      { q: "68 – __ = 56. Số cần điền là:", opts: ["12","124","8","56"], ans: 0 },
+      { q: "Cô giáo có 68 cái khẩu trang, đã tặng cho các bạn 34 cái. Hỏi cô giáo còn lại bao nhiêu cái?", opts: ["34 cái","102 cái","24 cái","44 cái"], ans: 0 },
+    ]
+  },
+  {
+    title: "Đề 10",
+    questions: [
+      { q: "Trong dãy số 34; 60; 23; 56, số tròn chục là:", opts: ["34","60","56"], ans: 1 },
+      { q: "Trong các số từ 1 đến 100, số bé nhất là:", opts: ["9","100","1"], ans: 2 },
+      { q: "36 – __ = 32. Số cần điền là:", opts: ["4","68","32","8"], ans: 0 },
+      { q: "Dãy số: 11; 22; 33; __; __; 66. Số cần điền là:", opts: ["34; 35","44; 45","44; 55"], ans: 2 },
+      { q: "78 – 5 = ?", opts: ["73","83","785","70"], ans: 0 },
+      { q: "18 + 20 = ?", opts: ["38","2","1820","40"], ans: 0 },
+      { q: "60 – 20 = ?", opts: ["40","80","6020","30"], ans: 0 },
+      { q: "62 + 3 = ?", opts: ["65","59","623","68"], ans: 0 },
+      { q: "88 – 50 + 10 = ?", opts: ["48","28","148","58"], ans: 0 },
+      { q: "18 cm – 3 cm + 12 cm = ?", opts: ["27 cm","3 cm","33 cm","7 cm"], ans: 0 },
+      { q: "Lớp 1A có 34 bạn, lớp 1B có 31 bạn. Hỏi cả hai lớp có tất cả bao nhiêu bạn?", opts: ["65 bạn","3 bạn","75 bạn","55 bạn"], ans: 0 },
+      { q: "Cho dãy số: 22, __, 26, __, 30. Số cần điền lần lượt là:", opts: ["24, 28","23, 27","25, 29","20, 25"], ans: 0 },
+      { q: "Sắp xếp các số 82, 76, 51, 89 từ bé đến lớn:", opts: ["51, 76, 82, 89","89, 82, 76, 51","76, 51, 82, 89","82, 89, 51, 76"], ans: 0 },
+    ]
+  }
+];
+
+let currentExam = 0;
+let questions = [];
+let current = 0;
+let score = 0;
+let userAnswers = [];
+
+function buildExamGrid() {
+  const grid = document.getElementById('examGrid');
+  grid.innerHTML = '';
+  EXAMS.forEach((ex, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'exam-btn' + (i === currentExam ? ' active' : '');
+    btn.textContent = ex.title;
+    btn.onclick = () => selectExam(i);
+    grid.appendChild(btn);
+  });
+}
+
+function selectExam(idx) {
+  currentExam = idx;
+  buildExamGrid();
+  startExam();
+}
+
+function startExam() {
+  questions = [...EXAMS[currentExam].questions];
+  current = 0; score = 0;
+  userAnswers = new Array(questions.length).fill(null);
+  document.getElementById('scoreScreen').classList.remove('show');
+  document.getElementById('quizArea').style.display = '';
+  document.getElementById('quizArea').innerHTML = '';
+  render();
+  document.querySelector('.quiz-wrap').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function render() {
+  updateProgress();
+  const q = questions[current];
+  const sel = userAnswers[current];
+  const locked = sel !== null;
+  const letters = ['A','B','C','D'];
+
+  const optsHTML = q.opts.map((o, i) => {
+    let cls = '';
+    if (locked) {
+      if (i === q.ans) cls = 'correct';
+      else if (i === sel) cls = 'wrong';
+    }
+    return `<button class="option-btn ${cls}" onclick="choose(${i})" ${locked ? 'disabled' : ''}>
+      <span class="option-letter">${letters[i]}</span>
+      <span>${o}</span>
+    </button>`;
+  }).join('');
+
+  let feedbackHTML = '';
+  if (locked) {
+    const ok = sel === q.ans;
+    feedbackHTML = `<div class="feedback ${ok ? 'correct-fb' : 'wrong-fb'} show">
+      <span class="fb-icon">${ok ? '🌟' : '💡'}</span>
+      <span>${ok ? 'Chính xác! Giỏi lắm!' : `Đáp án đúng là: <strong>${letters[q.ans]}. ${q.opts[q.ans]}</strong>`}</span>
+    </div>`;
+  }
+
+  const isLast = current === questions.length - 1;
+  document.getElementById('quizArea').innerHTML = `
+    <div class="question-card">
+      <div class="q-meta">
+        <span class="q-tag">${EXAMS[currentExam].title}</span>
+        <span class="q-counter">Câu ${current + 1} / ${questions.length}</span>
+      </div>
+      <div class="q-text">${q.q}</div>
+      <div class="options">${optsHTML}</div>
+      ${feedbackHTML}
+      <div class="nav-row">
+        <button class="nav-btn prev" onclick="prev()" ${current === 0 ? 'disabled' : ''}>← Trước</button>
+        <button class="nav-btn next" onclick="${isLast ? 'finish()' : 'next()'}" ${!locked ? 'disabled' : ''}>
+          ${isLast ? '🏆 Xem kết quả' : 'Tiếp →'}
+        </button>
+      </div>
+    </div>
+  `;
+}
+
+function updateProgress() {
+  const total = questions.length;
+  const done = userAnswers.filter(a => a !== null).length;
+  const pct = total ? (done / total) * 100 : 0;
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressLabel').textContent = `${done} / ${total}`;
+}
+
+function choose(i) {
+  if (userAnswers[current] !== null) return;
+  userAnswers[current] = i;
+  if (i === questions[current].ans) score++;
+  render();
+}
+function next() { if (current < questions.length - 1) { current++; render(); } }
+function prev() { if (current > 0) { current--; render(); } }
+
+function finish() {
+  document.getElementById('quizArea').style.display = 'none';
+  const ss = document.getElementById('scoreScreen');
+  ss.classList.add('show');
+
+  const total = questions.length;
+  const pct = Math.round((score / total) * 100);
+  document.getElementById('scoreExamLabel').textContent = EXAMS[currentExam].title + ' – Kết quả';
+  document.getElementById('scoreNum').textContent = `${score}/${total}`;
+
+  let emoji, desc;
+  if (pct === 100)     { emoji = '🏆'; desc = 'Xuất sắc! Em trả lời đúng tất cả! Tuyệt vời lắm!'; launchConfetti(); }
+  else if (pct >= 80)  { emoji = '🌟'; desc = 'Rất giỏi! Em làm bài rất tốt! Tiếp tục cố gắng nhé!'; launchConfetti(); }
+  else if (pct >= 60)  { emoji = '😊'; desc = 'Tốt! Hãy xem lại những câu sai để ôn thêm nhé!'; }
+  else                 { emoji = '📚'; desc = 'Cố gắng hơn nhé! Ôn tập thêm và làm lại em sẽ làm được!'; }
+
+  document.getElementById('scoreEmoji').textContent = emoji;
+  document.getElementById('scoreDesc').textContent = desc;
+  document.getElementById('progressFill').style.width = '100%';
+  document.getElementById('progressLabel').textContent = `${total} / ${total}`;
+
+  const letters = ['A','B','C','D'];
+  let reviewHTML = `<div class="review-title">📝 Xem lại đáp án</div>`;
+  questions.forEach((q, i) => {
+    const ua = userAnswers[i];
+    const ok = ua === q.ans;
+    reviewHTML += `<div class="review-item ${ok ? 'ok' : 'fail'}">
+      <div class="review-q">${i+1}. ${q.q}</div>
+      <div class="review-ans">`;
+    if (ok) {
+      reviewHTML += `✅ Em chọn đúng: <strong>${letters[q.ans]}. ${q.opts[q.ans]}</strong>`;
+    } else {
+      const uc = ua !== null
+        ? `<span class="user-wrong">❌ Em chọn: ${letters[ua]}. ${q.opts[ua]}</span>`
+        : `<span class="user-wrong">❌ Em chưa trả lời</span>`;
+      reviewHTML += `${uc} &nbsp;|&nbsp; ✅ Đáp án đúng: <strong>${letters[q.ans]}. ${q.opts[q.ans]}</strong>`;
+    }
+    reviewHTML += `</div></div>`;
+  });
+  document.getElementById('reviewSection').innerHTML = reviewHTML;
+  ss.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function retryExam() { startExam(); }
+function scrollToExams() { document.querySelector('.exam-section').scrollIntoView({ behavior: 'smooth' }); }
+
+function launchConfetti() {
+  const colors = ['#FF7043','#29B6F6','#FFD54F','#66BB6A','#EF5350','#FF8A65','#26C6DA'];
+  for (let i = 0; i < 70; i++) {
+    setTimeout(() => {
+      const el = document.createElement('div');
+      el.className = 'confetti-piece';
+      const size = 7 + Math.random() * 9;
+      el.style.cssText = `left:${Math.random()*100}vw; width:${size}px; height:${size}px; background:${colors[Math.floor(Math.random()*colors.length)]}; animation-duration:${1.4+Math.random()*2}s;`;
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), 4000);
+    }, i * 55);
+  }
+}
+
+// background shapes
+const shapesEl = document.getElementById('shapes');
+['#FF7043','#FFD54F','#66BB6A','#29B6F6','#AB47BC'].forEach((c, i) => {
+  for (let j = 0; j < 2; j++) {
+    const el = document.createElement('div');
+    el.className = 'shape';
+    const size = 50 + Math.random() * 100;
+    el.style.cssText = `width:${size}px;height:${size}px;top:${Math.random()*90}%;left:${Math.random()*90}%;background:${c};animation-duration:${4+Math.random()*5}s;animation-delay:${Math.random()*4}s;border-radius:${Math.random()>.5?'50%':'20px'};`;
+    shapesEl.appendChild(el);
+  }
+});
+
+buildExamGrid();
+startExam();
+</script>
+</body>
+</html>
